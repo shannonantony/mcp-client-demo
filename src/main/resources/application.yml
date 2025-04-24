@@ -1,0 +1,20 @@
+spring:
+  ai:
+    vertex:
+      ai:
+        gemini:
+          projectId: ${GEMINI_PROJECT_ID:gcp-project}
+          location: ${GEMINI_LOCATION:us-central1}
+          chat:
+            options:
+              model: gemini-1.5-pro
+              temperature: 0.4
+
+server:
+  port: 8080
+logging:
+  level:
+    org.springframework.ai: DEBUG
+    org.springframework.web: DEBUG
+    org.springframework.ai.mcp: TRACE
+    reactor.netty: DEBUG
