@@ -1,34 +1,43 @@
 package com.example.mcp_client_demo;
 
 import org.springframework.ai.chat.client.ChatClient;
-import org.springframework.ai.vertexai.gemini.VertexAiGeminiChatModel;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.ComponentScan;
+import org.springframework.ai.mcp.SyncMcpToolCallbackProvider;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import io.modelcontextprotocol.client.McpSyncClient;
 
 @Configuration
-@RestController
-@ComponentScan("com")
+@Controller
+@ResponseBody
 public class McpClientController {
 	
-	@Autowired
-	ChatClient chatClient;
+
+	ChatClient ai;
 	
-//	private final VertexAiGeminiChatModel chatModel;
-//
-//	public McpClientController(VertexAiGeminiChatModel chatModel) {
-//		this.chatModel = chatModel;
-//	}
+	McpClientController(McpSyncClient client,
+		      ChatClient.Builder ai) {
+		
+		
+		var system = """
+		        You are an AI powered assistant to help find the weather of a city.
+		        """;
+		    this.ai = ai
+		        .defaultSystem(system)
+		        .defaultToolCallbacks(new SyncMcpToolCallbackProvider(client))
+		        .build();
+	}
+
 
 	@RequestMapping("/weather")
 	public String test(@RequestParam String city) {
 		
 		String prompt = String.format("Get Weather at  %s ", city);
 		
-		String response = chatClient.prompt(prompt).call().content().toString();
+		String response = ai.prompt(prompt).call().content();
 		return response;
 	}
 }
